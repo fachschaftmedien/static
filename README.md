@@ -1,16 +1,21 @@
 # static
 
-Ein einfaches Overlay über ein statisches Verzeichnes eines Webservers, das
+> static overlay
 
-## Anforderungen
-Kenntnisse in
-* PHP
-* SCSS
-* HTML
+## Build Setup
 
-## Installation
-Zum abändern und ausarbeiten
-1. clone das Repository
-2. passe den Code an
-3. Teste
-4. Überschreibe die index.php in unserem static
+``` bash
+# install dependencies
+npm install
+
+# serve with hot reload at localhost:8080
+npm run dev
+
+# build for production with minification
+npm run build
+
+# build for production and view the bundle analyzer report
+npm run build --report
+```
+
+For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
