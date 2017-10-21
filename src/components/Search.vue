@@ -1,7 +1,6 @@
 <template>
   <div class="search-container centered">
-    <label for="search" :class="'search-label '+(active?'active':'inactive')">Suche...</label>
-    <input type="text" class="text-input" v-model="search" @keyup="searchTree($event)" id="search" @focus="active=true" @blur="active=search.length > 0" autocomplete="off">
+    <input type="text" class="text-input" placeholder="Suche..." v-model="search" @keyup="searchTree($event)" id="search" @focus="active=true" @blur="active=search.length > 0" autocomplete="off">
   </div>
 </template>
 
@@ -40,37 +39,19 @@
 </script>
 
 <style>
-  .search-container{
+
+  #search{
     width: 100%;
-    display: inline-block;
-    position: relative;
-    height: 2em;
   }
 
-  .search-label, #search{
+  .search-container{
     width: 100%;
-    height: 100%;
-    position: absolute;
+    height: 2em;
   }
 
   #search{
     height: 1em;
     font-size: 1em;
     z-index: 3;
-  }
-
-  .search-label{
-    z-index: 4;
-    margin: 0;
-    top: 0;
-    transition: top ease 0.3s;
-  }
-
-  .search-label.inactive{
-    top: 0;
-  }
-
-  .search-label.active{
-    top: -1em;
   }
 </style>

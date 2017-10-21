@@ -61,6 +61,41 @@ input.active{
   flex-wrap: wrap;
 }
 
+.centered-horizontal{
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.centered-vertical{
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.link{
+  cursor: pointer;
+}
+
+.link:hover, .link:active{
+  color: $active-color;
+  outline: none;
+}
+
+.truncated{
+  display: inline;
+  min-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+}
+
+.scrollable{
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 aside.side-search{
   position: fixed;
   left: $nav-offset;
@@ -80,7 +115,7 @@ aside.side-search{
   }
 
   .aside-content{
-    height: 100%;
+    height: calc(100vh - #{$nav-peek});
     width: calc(#{$nav-width} - 1em);
     margin: 0 1em;
 
@@ -88,6 +123,30 @@ aside.side-search{
       height: $nav-peek;
       font-size: 2em;
     }
+
+    .search-container{
+      height: 10vh;
+    }
+
+    .pinned-container{
+      margin: 5vh 0;
+      height: 20vh;
+    }
+
+    .history-container{
+      margin: 5vh 0;
+      height: 30vh;
+    }
+
+    .login-container{
+      padding-top: 5vh;
+    }
+
+
+    .search-container, .pinned-container, .history-container{
+      width: 100%;
+    }
+
   }
 
 
@@ -153,30 +212,6 @@ main.main-content{
   }
 
 }
-
-.history{
-
-  .history-entry{
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-
-    p{
-      padding: 0.1em 0;
-      display: inline;
-      min-width: 100px;
-      white-space: nowrap;
-      overflow: hidden;
-      -o-text-overflow: ellipsis;
-      text-overflow: ellipsis;
-    }
-
-    p:hover, p:active{
-      color: $active-color;
-    }
-  }
-}
-
 
 @media (max-width: 600px){
 

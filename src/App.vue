@@ -4,10 +4,12 @@
       <div class="aside-peek">
         <span :class="'fa side-menu-icon centered '+(navActive ? 'fa-arrow-left' : 'fa-bars')"></span>
       </div>
-      <div class="aside-content">
+      <div class="aside-content container">
         <header class="aside-headline centered">Suche & weiteres</header>
         <search :tree="tree" @searched="searchFor"></search>
+        <pinned :pins="pinned" @unpin="unpin" @selected="goLevelTo"></pinned>
         <selection-history :history="history" @selected="goLevelTo"></selection-history>
+        <login @auth="auth"></login>
       </div>
     </aside>
     <main class="main-content container">
@@ -15,21 +17,25 @@
         <breadcrumbs :current="current" @levelTo="goLevelTo"></breadcrumbs>
       </header>
       <section class="directory-container">
-        <directory-view :current="current" :tree="tree" @fileOpen="openFile" @dirOpen="openDir" @levelUp="goLevelUp"></directory-view>
+        <directory-view :loggedIn="credential && credential.length > 0" :current="current" :tree="tree" :pins="pinned" @fileOpen="openFile" @dirOpen="openDir" @levelUp="goLevelUp" @pin="pin" @unpin="unpin"></directory-view>
       </section>
     </main>
   </div>
 </template>
 
 <script>
-import Search from '@/components/Search.vue'
-import DirectoryView from '@/components/DirectoryView.vue'
-import Breadcrumbs from '@/components/Breadcrumbs.vue'
-import SelectionHistory from '@/components/SelectionHistory.vue'
+import Search from '@/components/Search'
+import DirectoryView from '@/components/DirectoryView'
+import Breadcrumbs from '@/components/Breadcrumbs'
+import SelectionHistory from '@/components/SelectionHistory'
+import Pinned from '@/components/Pinned'
+import Login from '@/components/Login'
 import parentDirPath from './js/parentDirPath'
 import History from './js/history'
+import Pins from './js/pins'
 
 const history = new History();
+const pins = new Pins();
 const fallback =  require('../test.json');
 const load = () => {return {name: "", path: "", type: "dir", children: [] }};
 
@@ -40,17 +46,22 @@ export default {
     SelectionHistory,
     Search,
     Breadcrumbs,
-    DirectoryView
+    Pinned,
+    DirectoryView,
+    Login
   },
   data(){
     return {
       tree: load(),
       current: load(),
       history: history,
-      navActive: false
+      navActive: false,
+      pinned: [],
+      credential: null
     }
   },
   created(){
+    this.pinned = pins.all();
     const headers = new Headers();
     headers.append('Authorization', 'Basic ' + btoa("studident:kukident"));
     fetch('http://static.fachschaftmedien.de/folder.php', {headers: headers})
@@ -64,12 +75,11 @@ export default {
         this.tree = fallback;
         this.current = fallback;
         console.warn('using test-json as development fallback');
-        console.error('failed fetching data');
+        console.error('failed fetching data', err.message);
       });
   },
   methods: {
     activateAside(bool=true){
-        console.log('activateAside', bool);
         this.navActive = bool;
     },
     find(func, elements=this.tree.children, i=0, arr=[]){
@@ -101,6 +111,9 @@ export default {
       this.history.add(entry);
       let path = entry.path;
       this.current = path.length > 0  && path !== '/' ?  this.find(el => el.path && el.path === path)[0] : this.tree;
+      if(entry.type === 'file'){
+        window.open(path);
+      }
     },
     searchFor(letters){
       letters = letters.toLowerCase();
@@ -110,6 +123,19 @@ export default {
         type: "dir",
         children: this.find(el => el.name && el.name.toLowerCase().indexOf(letters) >= 0)
       }
+    },
+    pin(entry){
+      pins.pin(entry).then(changed => {
+          this.pinned = changed
+      }).catch(console.warn);
+    },
+    unpin(entry){
+      pins.unpin(entry).then(changed => {
+          this.pinned = changed
+      }).catch(console.warn);
+    },
+    auth(secret){
+        this.credential = btoa(secret);
     }
   }
 }

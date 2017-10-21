@@ -1,27 +1,40 @@
 <template>
   <div id="directories">
     <ul class="current-directory-list">
-      <li class="current-directory-list-item up-list-item">
-        <div class="current-directory-item row" @click="handleClick('..')">
+      <li class="current-directory-list-item up-list-item link">
+        <div class="current-directory-item row">
           <div class="col-xs-3">
-            <span class="fa fa-level-up"></span>
+            <span class="fa fa-level-up" @click="handleClick('..')"></span>
           </div>
           <div class="col-xs-9">
-            <a href="#" tabindex="4" class="directory-item-link"> (Ebene nach oben) </a>
+            <a href="#" tabindex="4" class="directory-item-link" @click="handleClick('..')"> (Ebene nach oben) </a>
           </div>
         </div>
       </li>
-      <li v-for="(entry, index) in entries" class="current-directory-list-item">
-        <div class="current-directory-item row" @click="handleClick(entry)">
-          <div class="col-xs-3 current-item-icon icon">
-            <span :class="entry.type === 'dir' ? dirIconClass : fileIconClass"></span>
+      <li v-for="(entry, index) in entries" class="current-directory-list-item link">
+        <div class="current-directory-item row">
+          <div class="col-xs-1 current-item-icon icon">
+            <span :class="entry.type === 'dir' ? dirIconClass : fileIconClass" @click="handleClick(entry)"></span>
           </div>
-          <div class="col-xs-9">
-            <a href="#" :tabindex="index+5" class="directory-item-link"> {{entry.name}} </a>
+          <div class="col-xs-8">
+            <a href="#" :tabindex="index+5" class="directory-item-link" @click="handleClick(entry)"> {{entry.name}} </a>
+          </div>
+          <div class="col-xs-1 current-item-icon">
+            <span v-if="loggedIn" class="fa fa-pencil" title="Namen der Datei / des Ordners bearbeiten"></span>
+          </div>
+          <div class="col-xs-1 current-item-icon">
+            <span v-if="loggedIn" class="fa fa-trash" title="Datei / Ordner löschen"></span>
+          </div>
+          <div class="col-xs-1 current-item-icon">
+            <span :class="isPinned(entry) ? unpinClass : pinClass" @click="handlePin(entry)"></span>
           </div>
         </div>
       </li>
     </ul>
+    <div class="upload-controls" v-if="loggedIn">
+      <button class="btn button">Ordner hier erstellen <span class="fa fa-plus"></span></button>
+      <button class="btn button">File hier uploaden <span class="fa fa-upload"></span></button>
+    </div>
   </div>
 </template>
 
@@ -29,6 +42,13 @@
   export default {
     name: 'DirectoryView',
     props: {
+      loggedIn: {
+        type: Boolean,
+        default: false
+      },
+      pins: {
+          type: Array
+      },
       tree: {
         type: Object,
       },
@@ -43,20 +63,27 @@
       fileIconClass: {
         type: String,
         default: 'fa fa-file'
+      },
+      pinClass: {
+        type: String,
+        default: 'fa fa-thumb-tack'
+      },
+      unpinClass: {
+        type: String,
+        default: 'fa fa-times'
       }
     },
     computed: {
         entries(){
             if(!this.current || !this.current.children) return [];
             return this.current.children.sort((a, b)=>{
-                console.log(a.type, a.name, b.type, b.name);
                 if(a.type === b.type){
                   return a.name.localeCompare(b.name);
                 }else{
                   return a.type === 'dir' ? -1 : 1;
                 }
             });
-        }
+        },
     },
     methods: {
       handleClick(entry){
@@ -67,6 +94,16 @@
           }else if(entry === '..'){
               this.$emit('levelUp', this.current);
           }
+      },
+      handlePin(entry){
+          if(this.isPinned(entry)){
+              this.$emit('unpin', entry);
+          }else{
+              this.$emit('pin', entry);
+          }
+      },
+      isPinned(entry){
+          return this.pins.findIndex(pin => entry.path === pin.path) >= 0;
       }
     }
   }
