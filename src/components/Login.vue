@@ -11,6 +11,8 @@
 </template>
 
 <script>
+  import send from '../js/send';
+
   export default {
     name: 'Login',
     data(){
@@ -24,9 +26,7 @@
         submit(){
           if(this.secret){
             this.blocked = true;
-            const headers = new Headers();
-            headers.append('Authorization', 'Basic ' + btoa("studident:kukident"));
-            fetch('/manage.php?action=check&key='+btoa(this.secret), {method: 'POST', headers: headers})
+            send({key: btoa(this.secret), action: 'check'})
               .then(res => {
                 if(res.ok){
                   this.error = "";

@@ -42,7 +42,7 @@ export default class Pins{
   }
 
   _load(){
-    return localForage.getItem(this._key);
+    return localForage.getItem(this._key) || [];
   }
 
   _save(){

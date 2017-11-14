@@ -20,10 +20,10 @@
             <a href="#" :tabindex="index+5" class="directory-item-link" @click="handleClick(entry)"> {{entry.name}} </a>
           </div>
           <div class="col-xs-1 current-item-icon">
-            <span v-if="loggedIn" class="fa fa-pencil" title="Namen der Datei / des Ordners bearbeiten"></span>
+            <span v-if="loggedIn" class="fa fa-pencil" title=" Datei /  Ordner bearbeiten" @click="showMenu('edit', entry)"></span>
           </div>
           <div class="col-xs-1 current-item-icon">
-            <span v-if="loggedIn" class="fa fa-trash" title="Datei / Ordner löschen"></span>
+            <span v-if="loggedIn" class="fa fa-trash" title="Datei / Ordner löschen" @click="showMenu('delete', entry)"></span>
           </div>
           <div class="col-xs-1 current-item-icon">
             <span :class="isPinned(entry) ? unpinClass : pinClass" @click="handlePin(entry)"></span>
@@ -76,13 +76,15 @@
     computed: {
         entries(){
             if(!this.current || !this.current.children) return [];
-            return this.current.children.sort((a, b)=>{
+            return this.current.children
+              .filter((el)=> el && el.name && el.path && el.name.replace('_','').trim().length > 0)
+              .sort((a, b)=>{
                 if(a.type === b.type){
                   return a.name.localeCompare(b.name);
                 }else{
                   return a.type === 'dir' ? -1 : 1;
                 }
-            });
+              });
         },
     },
     methods: {
@@ -103,7 +105,10 @@
           }
       },
       isPinned(entry){
-          return this.pins.findIndex(pin => entry.path === pin.path) >= 0;
+        return this.pins && this.pins.findIndex(pin => entry.path === pin.path) >= 0;
+      },
+      showMenu(action, entry){
+        this.$emit('showMenu', action, entry);
       }
     }
   }

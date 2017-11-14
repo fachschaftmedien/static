@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <overlay :visible="menu !== null" :action="menu" :edit="edit" :credential="credential" @close="hideMenu"></overlay>
     <aside :class="'side-search '+(navActive ? 'active' : 'inactive')" @mouseenter="navActive = true" @mouseleave="navActive = false">
       <div class="aside-peek">
         <span :class="'fa side-menu-icon centered '+(navActive ? 'fa-arrow-left' : 'fa-bars')"></span>
@@ -9,7 +10,6 @@
         <search :tree="tree" @searched="searchFor"></search>
         <pinned :pins="pinned" @unpin="unpin" @selected="goLevelTo"></pinned>
         <selection-history :history="history" @selected="goLevelTo"></selection-history>
-        <login @auth="auth"></login>
       </div>
     </aside>
     <main class="main-content container">
@@ -17,7 +17,8 @@
         <breadcrumbs :current="current" @levelTo="goLevelTo"></breadcrumbs>
       </header>
       <section class="directory-container">
-        <directory-view :loggedIn="credential && credential.length > 0" :current="current" :tree="tree" :pins="pinned" @fileOpen="openFile" @dirOpen="openDir" @levelUp="goLevelUp" @pin="pin" @unpin="unpin"></directory-view>
+        <directory-view :loggedIn="credential && credential.length > 0" :current="current" :tree="tree" :pins="pinned" @fileOpen="openFile" @dirOpen="openDir" @levelUp="goLevelUp" @pin="pin" @unpin="unpin" @showMenu="showMenu">
+        </directory-view>
       </section>
     </main>
   </div>
@@ -30,6 +31,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import SelectionHistory from '@/components/SelectionHistory'
 import Pinned from '@/components/Pinned'
 import Login from '@/components/Login'
+import Overlay from '@/components/Overlay'
 import parentDirPath from './js/parentDirPath'
 import History from './js/history'
 import Pins from './js/pins'
@@ -43,6 +45,7 @@ const load = () => {return {name: "", path: "", type: "dir", children: [] }};
 export default {
   name: 'app',
   components: {
+    Overlay,
     SelectionHistory,
     Search,
     Breadcrumbs,
@@ -57,11 +60,13 @@ export default {
       history: history,
       navActive: false,
       pinned: [],
-      credential: null
+      credential: null,
+      menu: null,
+      edit: null,
     }
   },
   created(){
-    this.pinned = pins.all();
+    pins.all(false).then(all => this.pinned = all);
     const headers = new Headers();
     headers.append('Authorization', 'Basic ' + btoa("studident:kukident"));
     fetch('http://static.fachschaftmedien.de/folder.php', {headers: headers})
@@ -136,6 +141,14 @@ export default {
     },
     auth(secret){
         this.credential = btoa(secret);
+    },
+    showMenu(action, entry){
+        this.menu = action;
+        this.edit = entry;
+    },
+    hideMenu(){
+        this.menu = null;
+        this.edit = null;
     }
   }
 }

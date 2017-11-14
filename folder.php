@@ -6,7 +6,7 @@ $all_content = '{"name": "", "path": "", "type": "dir", "children": ' . json_enc
 print_r($all_content);
 
 function ignore($dir){
-  $ignore_list = array('folder.php','.htaccess','.htpasswd','static','index.html');
+  $ignore_list = array('folder.php', 'manage.php', '.htaccess', '.htpasswd', 'static', 'index.html');
   foreach($ignore_list as $start){
     if(strpos($start, $dir) === 0) return true;
   }
